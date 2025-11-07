@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="applicable-device" content="pc,mobile" />
+    <meta name="referrer" content="strict-origin" />
+
+    <title>JW Connect: Chat & Connect Safely</title>
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/favicon-180.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16.png">
+    <link rel="mask-icon" href="/assets/favicon/favicon.svg" color="#1d70f2">
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Open Graph / Twitter meta -->
+    <meta property="og:title" content="JW Connect: Chat & Connect Safely">
+    <meta property="og:description" content="Stay connected with friends and family. Safe, secure, and trusted by thousands worldwide.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80">
+    <meta property="og:url" content="https://yourwebsite.com">
+    <meta property="og:site_name" content="JW Connect">
+    <meta name="twitter:title" content="JW Connect: Chat & Connect Safely">
+    <meta name="twitter:description" content="Stay connected with friends and family. Safe, secure, and trusted by thousands worldwide.">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== Base ===== */
+        * {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;scroll-behavior:smooth;}
+        body {background-color:#f4f7fa;color:#222;overflow-x:hidden;}
+
+        /* ===== Header ===== */
+        header {
+            background:white;
+            box-shadow:0 2px 8px rgba(0,0,0,0.1);
+            padding:20px 50px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            position:fixed;
+            top:0;
+            width:100%;
+            z-index:1000;
+            transition:all 0.3s;
+        }
+        header.scrolled {padding:10px 40px; backdrop-filter: blur(8px);}
+        header h1 {color:#0077cc; font-weight:600; letter-spacing:1px;}
+        nav a {margin-left:25px; text-decoration:none; color:#333; font-weight:500; transition:color 0.3s;}
+        nav a:hover {color:#0077cc;}
+
+        /* ===== Hero ===== */
+        .hero {
+            height:90vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            text-align:center;
+            position:relative;
+            background-size:cover;
+            background-position:center;
+            transition:background-image 1s ease-in-out;
+        }
+        .hero::before {
+            content:"";
+            position:absolute;
+            top:0;left:0;
+            width:100%;height:100%;
+            background:rgba(0,0,0,0.4);
+        }
+        .hero-content {
+            position:relative;
+            z-index:2;
+            color:white;
+            max-width:700px;
+            padding:20px;
+            animation:fadeInUp 1.5s ease;
+        }
+        @keyframes fadeInUp {from {opacity:0;transform:translateY(30px);} to {opacity:1;transform:translateY(0);}}
+        .hero-content h2 {font-size:3rem; margin-bottom:15px;}
+        .hero-content p {font-size:1.2rem; margin-bottom:25px; line-height:1.6;}
+        .hero-content a {background:white;color:#0077cc; padding:12px 30px; border-radius:8px; font-weight:600; text-decoration:none; transition:all 0.3s;}
+        .hero-content a:hover {background:#0077cc; color:white; transform:translateY(-3px);}
+
+        /* ===== Features Section ===== */
+        .features {
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+            gap:30px;
+            padding:100px 60px;
+            background:#f1f1f1;
+            text-align:center;
+        }
+        .feature-box {
+            background:white;
+            border-radius:10px;
+            padding:30px;
+            box-shadow:0 4px 10px rgba(0,0,0,0.1);
+            transition:transform 0.3s, box-shadow 0.3s;
+        }
+        .feature-box:hover {transform:translateY(-10px); box-shadow:0 6px 16px rgba(0,0,0,0.15);}
+        .feature-box h4 {font-size:1.4rem; margin-bottom:10px; color:#0077cc;}
+        .feature-box p {color:#555; font-size:0.95rem; line-height:1.6;}
+
+        /* ===== Download Section ===== */
+        .download {
+            text-align:center;
+            padding:100px 40px;
+            background: linear-gradient(135deg,#0077cc,#00aaff);
+            color:white;
+            position: relative;
+        }
+        .download h3 { font-size:2.4rem; margin-bottom:20px; }
+        .download p { margin-bottom:35px; font-size:1.2rem; line-height:1.6; }
+        .download a { display:inline-block; background:white; color:#0077cc; font-weight:600; padding:14px 35px; border-radius:8px; text-decoration:none; transition: all 0.3s; }
+        .download a:hover { background:#005fa3; color:white; transform: translateY(-3px); }
+
+        /* ===== Trusted Section ===== */
+        .trust-section {
+            text-align:center;
+            padding:80px 40px;
+            background:white;
+        }
+        .trust-section h3 { font-size:2rem; margin-bottom:25px; }
+        .trust-logos {
+            display:flex;
+            justify-content:center;
+            flex-wrap:wrap;
+            gap:40px;
+            margin-top:30px;
+        }
+        .trust-logos img { width:80px; height:80px; border-radius:12px; object-fit:contain; transition: transform 0.3s;}
+        .trust-logos img:hover { transform: scale(1.1); }
+
+        /* ===== Footer ===== */
+        footer {
+            background:#222;
+            color:white;
+            text-align:center;
+            padding:40px 20px;
+            font-size:0.9rem;
+        }
+
+        /* ===== Responsive ===== */
+        @media(max-width:900px){
+            header { flex-direction: column; align-items:flex-start; padding:15px 30px; }
+            nav { display:flex; flex-wrap:wrap; margin-top:10px; }
+            nav a { margin:10px 10px 0 0; }
+            .hero-content h2 { font-size:2.2rem; }
+            .hero-content p { font-size:1rem; }
+            .features, .download, .trust-section { padding:60px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<header id="header">
+    <h1>JW Connect</h1>
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#register">Register</a>
+        <a href="#login">Login</a>
+    </nav>
+</header>
+
+<section class="hero" id="home">
+    <div class="hero-content">
+        <h2>Stay Connected with JW Friends & Family</h2>
+        <p>Experience seamless connection, safe and trusted by thousands worldwide.</p>
+        <a href="#register">📱 Register Now</a>
+    </div>
+</section>
+
+<section class="features fade-in" id="features">
+    <div class="feature-box">
+        <h4>🔒 Secure & Safe</h4>
+        <p>100% verified Users with high standards. Your privacy and safety is our prioritised.</p>
+    </div>
+    <div class="feature-box">
+        <h4>⚡ Memebers verification</h4>
+        <p>Provide evidence you are a brother or sister before connecting.</p>
+    </div>
+    <div class="feature-box">
+        <h4>⭐ Trusted by Thousands</h4>
+        <p>Join happy secured users worldwide.</p>
+    </div>
+    <div class="feature-box">
+        <h4>📱 Play Store Coming Soon</h4>
+        <p>Early access available for download now!</p>
+    </div>
+</section>
+
+<section class="download fade-in" id="download">
+    <h3>Start connecting and meeting now</h3>
+    <p>Click the button below to safely beging your journey </p>
+    <a href="/download/apk">📱 Register Now</a>
+</section>
+
+<section class="trust-section fade-in" id="trust">
+    <h3>Trusted & Verified Worldwide 🌍</h3>
+    <div class="trust-logos">
+    <img src="https://i.postimg.cc/F1cNpNzz/trustbrand.png" alt="Play Store">
+    <img src="https://i.postimg.cc/bdbpgprd/verified.png" alt="Verified Badge">
+    <img src="https://i.postimg.cc/yW9sjsxB/android.png" alt="Android">
+    <img src="https://i.postimg.cc/146sBsXz/ios.png" alt="iOS">
+</div>
+
+</section>
+
+<footer>
+    &copy; 2025 JW Connect. Safe, Secure, and Trusted.
+</footer>
+
+<script>
+    /* ===== Hero Background Slider ===== */
+    const hero = document.querySelector('.hero');
+    const images = [
+        'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80'
+    ];
+    let index = 0;
+    function changeBackground() {
+        hero.style.backgroundImage = `url(${images[index]})`;
+        index = (index + 1) % images.length;
+    }
+    changeBackground();
+    setInterval(changeBackground, 5000);
+
+    /* ===== Fade-in Sections ===== */
+    const fadeElements = document.querySelectorAll('.fade-in');
+    const observer = new IntersectionObserver(entries=>{
+        entries.forEach(entry=>{
+            if(entry.isIntersecting) entry.target.classList.add('visible');
+        });
+    }, { threshold:0.2 });
+    fadeElements.forEach(el=>observer.observe(el));
+
+    /* ===== Header Scroll ===== */
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', ()=>{ header.classList.toggle('scrolled', window.scrollY > 50); });
+</script>
+
+</body>
+</html>
