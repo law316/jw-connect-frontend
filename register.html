@@ -1,0 +1,284 @@
+<!-- FULL HTML + CSS + JS VERSION (NO REACT) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JW Registration</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    /* ✅ Allow scrolling while keeping layout unchanged */
+    body {
+      min-height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* Background slideshow container */
+    .bg-slider {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .bg-slider img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+    }
+
+    .bg-slider img.active {
+      opacity: 1;
+    }
+
+    /* Dark overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 0;
+    }
+
+    /* ✅ Fitted Registration container */
+    .register-box {
+      max-width: 380px;
+      width: 90%;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(10px);
+      padding: 22px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      position: relative;
+      z-index: 2;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 5px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    p.sub {
+      text-align: center;
+      color: #e5e5e5;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.25);
+      color: white;
+      outline: none;
+      font-size: 14px;
+    }
+
+    input::placeholder {
+      color: #eee;
+    }
+
+    /* ✅ Fix invisible dropdown options */
+    select option {
+      color: black;
+      background: white;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      margin-top: 15px;
+      font-size: 15px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #222;
+    }
+
+    .preview-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin-top: 10px;
+      border: 2px solid white;
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Background slideshow -->
+  <div class="bg-slider" id="bgSlider"></div>
+  <div class="overlay"></div>
+
+  <div class="register-box">
+    <h2>Create JW Profile</h2>
+    <p class="sub">Connect with fellow Witnesses worldwide</p>
+
+    <form id="registerForm">
+
+      <label>Username</label>
+      <input type="text" name="username" placeholder="johndoe" required />
+
+      <label>Email</label>
+      <input type="email" name="email" placeholder="you@example.com" required />
+
+      <label>Password</label>
+      <input type="password" name="password" placeholder="•••••••" required />
+
+      <label>Gender</label>
+      <select name="gender">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+
+      <label>Location (Continent)</label>
+      <select name="continent" id="continentSelect">
+        <option>Africa</option>
+        <option>Europe</option>
+        <option>Asia</option>
+        <option>North America</option>
+        <option>South America</option>
+        <option>Oceania</option>
+      </select>
+
+      <div id="africaRegionBox" style="display:none;">
+        <label>African Region</label>
+        <select name="africaRegion">
+          <option>West Africa</option>
+          <option>East Africa</option>
+          <option>North Africa</option>
+          <option>Central Africa</option>
+          <option>Southern Africa</option>
+        </select>
+      </div>
+
+      <label>Country</label>
+      <select name="country">
+        <option>Nigeria</option><option>Ghana</option><option>Kenya</option><option>South Africa</option>
+        <option>Uganda</option><option>Cameroon</option><option>Ethiopia</option><option>Morocco</option>
+        <option>Egypt</option><option>Rwanda</option>
+        <option>USA</option><option>UK</option><option>Canada</option>
+        <option>Germany</option><option>France</option>
+        <option>Italy</option><option>Spain</option><option>Netherlands</option>
+        <option>Sweden</option><option>Poland</option>
+        <option>India</option><option>China</option><option>Japan</option>
+        <option>South Korea</option><option>Philippines</option><option>Indonesia</option>
+      </select>
+
+      <label>Favorite Bible Verse</label>
+      <input type="text" name="bibleVerse" placeholder="Psalm 83:18" />
+
+      <label>Profile Image</label>
+      <input type="file" id="imageInput" name="image" accept="image/*" />
+      <img id="previewImg" class="preview-img" style="display:none;" />
+
+      <button type="submit">Create Account</button>
+    </form>
+  </div>
+
+  <script>
+    /* ----------------- BACKGROUND SLIDESHOW ----------------- */
+    const bgImages = [
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+      "https://images.unsplash.com/photo-1503264116251-35a269479413",
+      "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+      "https://images.unsplash.com/photo-1499084732479-de2c02d45fc4"
+    ];
+
+    const slider = document.getElementById("bgSlider");
+
+    bgImages.forEach((src, i) => {
+      const img = document.createElement("img");
+      img.src = src;
+      if (i === 0) img.classList.add("active");
+      slider.appendChild(img);
+    });
+
+    let current = 0;
+    setInterval(() => {
+      const slides = document.querySelectorAll("#bgSlider img");
+      slides[current].classList.remove("active");
+      current = (current + 1) % slides.length;
+      slides[current].classList.add("active");
+    }, 5000);
+
+    /* ----------------- AFRICAN REGION LOGIC ----------------- */
+    const continentSelect = document.getElementById("continentSelect");
+    const africaBox = document.getElementById("africaRegionBox");
+
+    continentSelect.addEventListener("change", () => {
+      africaBox.style.display = continentSelect.value === "Africa" ? "block" : "none";
+    });
+
+    /* ----------------- IMAGE PREVIEW ----------------- */
+    document.getElementById("imageInput").addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        const preview = document.getElementById("previewImg");
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      }
+    });
+
+    /* ----------------- FORM SUBMIT ----------------- */
+    document.getElementById("registerForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+
+      try {
+        const res = await fetch("https://jwconnect.fly.dev/register", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await res.json();
+        alert("Registration Successful!");
+        console.log(result);
+
+      } catch (err) {
+        console.error(err);
+        alert("Registration Failed");
+      }
+    });
+  </script>
+</body>
+</html>

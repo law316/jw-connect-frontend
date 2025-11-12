@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verification Quiz</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0a1b2a;
+    color: white;
+    display: flex;
+    height: 100vh;
+}
+
+/* LEFT QUIZ SECTION */
+#quizSection {
+    width: 65%;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 25px;
+    box-sizing: border-box;
+}
+
+h2 {
+    font-size: 22px;
+    margin-bottom: 14px;
+}
+
+.question {
+    font-size: 17px;
+    font-weight: bold;
+    margin-top: 18px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: none;
+    font-size: 16px;
+}
+
+#verifyBtn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 25px;
+    background: #28a745;
+    border: none;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#verifyBtn:hover {
+    background: #218838;
+}
+
+/* RIGHT IMAGE SLIDER */
+#imageSide {
+    width: 35%;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+.slider img {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    position: absolute;
+    opacity: 0;
+    animation: slide 15s infinite;
+}
+
+.slider img:nth-child(1){ animation-delay: 0s }
+.slider img:nth-child(2){ animation-delay: 3s }
+.slider img:nth-child(3){ animation-delay: 6s }
+.slider img:nth-child(4){ animation-delay: 9s }
+.slider img:nth-child(5){ animation-delay: 12s }
+
+@keyframes slide {
+    0% {opacity:0}
+    10% {opacity:1}
+    20% {opacity:1}
+    30% {opacity:0}
+    100% {opacity:0}
+}
+
+/* RESPONSIVE FOR MOBILE */
+@media (max-width: 900px) {
+    body {
+        flex-direction: column;
+    }
+    #quizSection, #imageSide {
+        width: 100%;
+        height: 50%;
+    }
+    .slider img {
+        height: 50vh;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- LEFT QUIZ -->
+<div id="quizSection">
+    <h2>Answer These Questions to Verify You Are a Brother or Sister</h2>
+
+    <div class="question">1. What's the year text for 2025?</div>
+    <input type="text" id="q1">
+
+    <div class="question">2. What book is used in Congregation Bible Study?</div>
+    <input type="text" id="q2">
+
+    <div class="question">3. How many sections in midweek meetings?</div>
+    <input type="text" id="q3">
+
+    <div class="question">4. How many meetings do we have a week?</div>
+    <input type="text" id="q4">
+
+    <div class="question">5. What is a one-day assembly called?</div>
+    <input type="text" id="q5">
+
+    <div class="question">6. When was the Memorial held in 2025?</div>
+    <input type="text" id="q6">
+
+    <div class="question">7. How many destinies or hopes do we believe?</div>
+    <input type="text" id="q7">
+
+    <div class="question">8. Number of those with heavenly hope?</div>
+    <input type="text" id="q8">
+
+    <div class="question">9. What year did Kingdom rule begin in heaven?</div>
+    <input type="text" id="q9">
+
+    <button id="verifyBtn" onclick="checkQuiz()">VERIFY</button>
+
+    <h3 id="result"></h3>
+</div>
+
+<!-- RIGHT IMAGE SLIDER -->
+<div id="imageSide">
+    <div class="slider">
+        <img src="https://i.imgur.com/WxNkK1p.png">
+        <img src="https://i.imgur.com/A7kCqfk.jpeg">
+        <img src="https://i.imgur.com/EEG4O7g.png">
+        <img src="https://i.imgur.com/WxNkK1p.png">
+        <img src="https://i.imgur.com/A7kCqfk.jpeg">
+    </div>
+</div>
+
+<script>
+function checkQuiz() {
+    let answers = [
+        document.getElementById("q1").value,
+        document.getElementById("q2").value,
+        document.getElementById("q3").value,
+        document.getElementById("q4").value,
+        document.getElementById("q5").value,
+        document.getElementById("q6").value,
+        document.getElementById("q7").value,
+        document.getElementById("q8").value,
+        document.getElementById("q9").value
+    ];
+
+    if (answers.includes("")) {
+        document.getElementById("result").innerHTML = "⚠️ Please answer all questions!";
+        document.getElementById("result").style.color = "yellow";
+    } else {
+        document.getElementById("result").innerHTML = "✅ Submitted! Verification pending...";
+        document.getElementById("result").style.color = "#4CAF50";
+    }
+}
+</script>
+
+</body>
+</html>
