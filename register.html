@@ -19,7 +19,6 @@
       overflow-x: hidden;
     }
 
-    /* Background slideshow */
     .bg-slider {
       position: fixed;
       top: 0;
@@ -43,7 +42,6 @@
       opacity: 1;
     }
 
-    /* Overlay */
     .overlay {
       position: fixed;
       top: 0;
@@ -54,7 +52,6 @@
       z-index: 0;
     }
 
-    /* Registration Box */
     .register-box {
       max-width: 380px;
       width: 90%;
@@ -122,11 +119,41 @@
       font-size: 15px;
       cursor: pointer;
       font-weight: bold;
+      position: relative;
     }
 
-    button:hover {
-      background: #222;
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
+
+    /* Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 3px solid white;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Status message */
+    #statusMessage {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+      padding: 8px;
+      border-radius: 6px;
+      display: none;
+    }
+    .success { background: rgba(0, 255, 0, 0.2); color: #a3f7a3; }
+    .error { background: rgba(255, 0, 0, 0.2); color: #ffb3b3; }
 
     .preview-img {
       width: 60px;
@@ -141,7 +168,6 @@
 
 <body>
 
-  <!-- Background slideshow -->
   <div class="bg-slider" id="bgSlider"></div>
   <div class="overlay"></div>
 
@@ -152,7 +178,7 @@
     <form id="registerForm">
 
       <label>Username</label>
-      <input type="text" name="username" required />
+      <input type="text" name="userName" required />
 
       <label>Email</label>
       <input type="email" name="email" required />
@@ -166,8 +192,8 @@
         <option>Female</option>
       </select>
 
-      <label>Location (Continent)</label>
-      <select name="continent" id="continentSelect">
+      <label>Continent</label>
+      <select name="location" id="continentSelect">
         <option>Africa</option>
         <option>Europe</option>
         <option>Asia</option>
@@ -176,47 +202,31 @@
         <option>Oceania</option>
       </select>
 
-      <!-- Africa region dropdown -->
-      <div id="africaRegionBox" style="display:none;">
-        <label>African Region</label>
-        <select name="africaRegion">
-          <option>West Africa</option>
-          <option>East Africa</option>
-          <option>North Africa</option>
-          <option>Central Africa</option>
-          <option>Southern Africa</option>
-        </select>
-      </div>
-
       <label>Country</label>
       <select name="country">
         <option>Nigeria</option><option>Ghana</option><option>Kenya</option><option>South Africa</option>
-        <option>Uganda</option><option>Cameroon</option><option>Ethiopia</option><option>Morocco</option>
-        <option>Egypt</option><option>Rwanda</option>
         <option>USA</option><option>UK</option><option>Canada</option>
-        <option>Germany</option><option>France</option><option>Italy</option>
-        <option>Spain</option><option>Netherlands</option>
-        <option>Sweden</option><option>Poland</option>
-        <option>India</option><option>China</option><option>Japan</option>
-        <option>South Korea</option><option>Philippines</option><option>Indonesia</option>
       </select>
 
       <label>Favorite Bible Verse</label>
       <input type="text" name="bibleVerse" placeholder="Psalm 83:18" />
 
       <label>Your Interest</label>
-      <input type="text" name="interest" placeholder="Share faith, wholesome relationship..." />
+      <input type="text" name="interest" placeholder="Share faith…" />
 
       <label>Profile Image</label>
       <input type="file" id="imageInput" accept="image/*" />
       <img id="previewImg" class="preview-img" style="display:none;" />
 
-      <button type="submit">Create Account</button>
+      <button type="submit" id="submitBtn">Create Account</button>
+
+      <div id="statusMessage"></div>
+
     </form>
   </div>
 
 <script>
-/* ---------------- BACKGROUND SLIDESHOW ---------------- */
+/* Background slideshow */
 const bgImages = [
   "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
   "https://images.unsplash.com/photo-1503264116251-35a269479413",
@@ -241,15 +251,7 @@ setInterval(() => {
   slides[current].classList.add("active");
 }, 5000);
 
-/* ---------------- AFRICAN REGION LOGIC ---------------- */
-const continentSelect = document.getElementById("continentSelect");
-const africaBox = document.getElementById("africaRegionBox");
-
-continentSelect.addEventListener("change", () => {
-  africaBox.style.display = continentSelect.value === "Africa" ? "block" : "none";
-});
-
-/* ---------------- CLOUDINARY UPLOAD FUNCTION ---------------- */
+/* CLOUDINARY UPLOAD */
 async function uploadToCloudinary(file) {
   const cloudName = "dogfqkm8u";
   const preset = "jw_images";
@@ -264,37 +266,44 @@ async function uploadToCloudinary(file) {
   });
 
   const data = await res.json();
-  return data.secure_url; // Return uploaded image URL
+  return data.secure_url;
 }
 
-/* ---------------- IMAGE PREVIEW + AUTO UPLOAD ---------------- */
+/* IMAGE PREVIEW + AUTO UPLOAD */
 let finalImageURL = "";
 
 document.getElementById("imageInput").addEventListener("change", async function () {
   const file = this.files[0];
   if (!file) return;
 
-  // Preview locally
   const preview = document.getElementById("previewImg");
   preview.src = URL.createObjectURL(file);
   preview.style.display = "block";
 
-  // Upload to Cloudinary
   finalImageURL = await uploadToCloudinary(file);
 });
 
-/* ---------------- SUBMIT FORM AS JSON ---------------- */
+/* SUBMIT FORM */
 document.getElementById("registerForm").addEventListener("submit", async function (e) {
   e.preventDefault();
+
+  const btn = document.getElementById("submitBtn");
+  const statusBox = document.getElementById("statusMessage");
 
   if (!finalImageURL) {
     alert("Please wait, uploading image...");
     return;
   }
 
+  // Change button to loading mode
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner"></div> Registering...`;
+  
+  statusBox.style.display = "none";
+
   const formData = new FormData(this);
   const payload = Object.fromEntries(formData.entries());
-  payload.profileImage = finalImageURL;
+  payload.imageProfile = finalImageURL;
 
   try {
     const res = await fetch("https://jwconnect.fly.dev/api/register", {
@@ -303,13 +312,21 @@ document.getElementById("registerForm").addEventListener("submit", async functio
       body: JSON.stringify(payload),
     });
 
-    const data = await res.json();
-    alert("Registration Successful!");
-    console.log(data);
+    if (!res.ok) throw new Error("Server error");
 
-  } catch (err) {
-    console.error(err);
-    alert("Registration Failed");
+    statusBox.className = "success";
+    statusBox.innerHTML = "🎉 Registration Successful!";
+    statusBox.style.display = "block";
+
+    btn.innerHTML = "Success!";
+  }
+  catch (err) {
+    statusBox.className = "error";
+    statusBox.innerHTML = "❌ Registration Failed. Please try again.";
+    statusBox.style.display = "block";
+
+    btn.disabled = false;
+    btn.innerHTML = "Create Account";
   }
 });
 </script>
