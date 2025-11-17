@@ -127,7 +127,6 @@
       cursor: not-allowed;
     }
 
-    /* Spinner */
     .spinner {
       width: 18px;
       height: 18px;
@@ -143,7 +142,6 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Status message */
     #statusMessage {
       margin-top: 10px;
       text-align: center;
@@ -152,8 +150,9 @@
       border-radius: 6px;
       display: none;
     }
+
     .success { background: rgba(0, 255, 0, 0.2); color: #a3f7a3; }
-    .error { background: rgba(255, 0, 0, 0.2); color: #ffb3b3; }
+    .error   { background: rgba(255, 0, 0, 0.2); color: #ffb3b3; }
 
     .preview-img {
       width: 60px;
@@ -254,7 +253,7 @@ setInterval(() => {
 /* CLOUDINARY UPLOAD */
 async function uploadToCloudinary(file) {
   const cloudName = "dogfqkm8u";
-  const preset = "jw_images";
+  const preset = "jw images";  // EXACT NAME WITH SPACE
 
   const formData = new FormData();
   formData.append("file", file);
@@ -266,10 +265,16 @@ async function uploadToCloudinary(file) {
   });
 
   const data = await res.json();
+
+  if (!res.ok) {
+    console.log("Cloudinary Error:", data);
+    throw new Error(data.error?.message || "Cloudinary upload failed");
+  }
+
   return data.secure_url;
 }
 
-/* IMAGE PREVIEW + AUTO UPLOAD */
+/* IMAGE PREVIEW + UPLOAD */
 let finalImageURL = "";
 
 document.getElementById("imageInput").addEventListener("change", async function () {
@@ -295,15 +300,14 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     return;
   }
 
-  // Change button to loading mode
   btn.disabled = true;
   btn.innerHTML = `<div class="spinner"></div> Registering...`;
-  
   statusBox.style.display = "none";
 
   const formData = new FormData(this);
   const payload = Object.fromEntries(formData.entries());
-  payload.imageProfile = finalImageURL;
+
+  payload.profileImage = finalImageURL; // FIXED
 
   try {
     const res = await fetch("https://jwconnect.fly.dev/api/register", {
