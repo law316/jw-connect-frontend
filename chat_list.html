@@ -159,10 +159,10 @@
   <h4>Quick Menu</h4>
   <ul class="menu">
     <li onclick="alert('Contact Admin')">Contact Admin</li>
-    <li onclick="alert('Video post ')">Naughty Users</li>
-    <li onclick="alert('Group Chats')">Videos</li>
+    <li onclick="alert('Video post ')">Video Post</li>
+    <li onclick="alert('Group Chats')">Group Chats</li>
     <li onclick="alert('Channels')">Channels</li>
-    <li onclick="alert('Books')">Rooms</li>
+    <li onclick="alert('Books')">Books</li>
     <li onclick="alert('Video Chats')">Video Chats</li>
     
   </ul>
@@ -173,23 +173,38 @@
 
     <!-- Filters -->
     <div class="filters">
-      <input id="searchName" placeholder="Search by name..." />
-      <select id="cityFilter"><option value="">All Cities</option><option>Lagos</option><option>Abuja</option><option>Port Harcourt</option></select>
-      <select id="ageFilter"><option value="">Age</option><option>18-25</option><option>26-35</option><option>36-45</option></select>
-      <select id="stateFilter">
-        <option value="">State (Nigeria)</option>
-        <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option>
-        <option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option>
-        <option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option>
-        <option>Ekiti</option><option>Enugu</option><option>Gombe</option><option>Imo</option>
-        <option>Jigawa</option><option>Kaduna</option><option>Kano</option><option>Katsina</option>
-        <option>Kebbi</option><option>Kogi</option><option>Kwara</option><option>Lagos</option>
-        <option>Nasarawa</option><option>Niger</option><option>Ogun</option><option>Ondo</option>
-        <option>Osun</option><option>Oyo</option><option>Plateau</option><option>Rivers</option>
-        <option>Sokoto</option><option>Taraba</option><option>Yobe</option><option>Zamfara</option>
-      </select>
-      <button id="applyFilters" style="padding:12px 16px;border-radius:12px;border:none;background:var(--accent);color:#000;cursor:pointer">Apply</button>
-    </div>
+  <input id="searchName" placeholder="Search by name..." />
+
+  <!-- CONTINENT SELECT -->
+  <select id="continentFilter">
+    <option value="">All Continents</option>
+    <option>Africa</option>
+    <option>Asia</option>
+    <option>Europe</option>
+    <option>North America</option>
+    <option>South America</option>
+    <option>Oceania</option>
+  </select>
+
+  <!-- COUNTRY SELECT (POPULATES DYNAMICALLY) -->
+  <select id="countryFilter">
+    <option value="">Select Country</option>
+  </select>
+
+  <!-- AGE FILTER -->
+  <select id="ageFilter">
+    <option value="">Age</option>
+    <option>18-25</option>
+    <option>26-35</option>
+    <option>36-45</option>
+  </select>
+
+  <!-- APPLY BUTTON -->
+  <button id="applyFilters" style="padding:12px 16px;border-radius:12px;border:none;background:var(--accent);color:#000;cursor:pointer">
+    Apply
+  </button>
+</div>
+
 
     <!-- Slider -->
     <div class="slider-wrap">
