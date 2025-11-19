@@ -1,495 +1,345 @@
-<!doctype html>
-<html>
+<!-- Premium Profile Page — Top Menu Dropdown (Sidebar Removed) -->
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Chat List + Firestore (Single File)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Premium Profiles</title>
 
-<!-- Simple styling + dark mode -->
-<style>
-:root{
-  --bg: #f2f5f9; --card:#fff; --primary:#4b79ff; --text:#1f2937;
-}
-[data-theme="dark"]{ --bg:#0b1220; --card:#0f1724; --primary:#6aa0ff; --text:#e6eef8; }
-*{box-sizing:border-box}
-body{
-  margin:0; font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text);
-}
-.app {
-  max-width:920px; margin:16px auto; padding:12px;
-}
-/* top controls */
-.topbar{
-  display:flex; gap:8px; align-items:center; justify-content:space-between; margin-bottom:12px;
-}
-.left-controls{display:flex; gap:8px; align-items:center;}
-.btn { padding:8px 10px; border-radius:8px; border:none; cursor:pointer; background:var(--primary); color:white; }
-.icon-btn { background:transparent; color:var(--text); border:1px solid rgba(0,0,0,0.06); padding:6px; border-radius:8px; cursor:pointer;}
-.search { padding:8px 10px; border-radius:10px; border:1px solid #dfe6f3; min-width:220px; outline:none; }
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial}
+    :root{--accent:#ff6600;--bg:#0d0d0d;--card:#141414;--muted:rgba(255,255,255,0.75)}
+    body{background:var(--bg);color:#fff;min-height:100vh;overflow-y:auto}
 
-/* layout */
-.layout{ display:grid; grid-template-columns:360px 1fr; gap:12px; align-items:start; }
-@media (max-width:880px){ .layout{grid-template-columns:1fr} .user-col{order:1} .chat-col{order:2} }
+    /* Header */
+    header{
+      position:fixed;
+      top:0;left:0;right:0;
+      height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 22px;
+      background:linear-gradient(180deg,rgba(0,0,0,0.6),rgba(0,0,0,0.35));
+      backdrop-filter:blur(8px);
+      z-index:2000
+    }
+    .brand{display:flex;align-items:center;gap:14px}
+    .brand .logo{font-weight:700;letter-spacing:1px;font-size:20px}
 
-/* user list column */
-.col { background:var(--card); border-radius:12px; padding:12px; box-shadow:0 6px 14px rgba(20,20,40,0.04); }
-.user-list { display:grid; gap:12px; max-height:72vh; overflow:auto; padding-right:6px; }
+    .controls{display:flex;align-items:center;gap:10px}
+    .controls button{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.1);
+      color:var(--muted);
+      padding:9px 14px;
+      border-radius:999px;
+      cursor:pointer
+    }
+    .controls .primary{background:var(--accent);color:#000;border:none}
 
-/* card */
-.card { border-radius:12px; overflow:hidden; box-shadow:0 6px 10px rgba(0,0,0,0.04); cursor:pointer; transition:transform .15s, box-shadow .15s; background:var(--card); }
-.card:hover{ transform:translateY(-4px); box-shadow:0 12px 20px rgba(10,10,30,0.08); }
+    /* MENU DROPDOWN */
+    #dropdownMenu{
+      position:fixed;
+      top:72px;
+      right:16px;
+      width:240px;
+      background:#0f0f0f;
+      border-radius:14px;
+      padding:18px;
+      box-shadow:0 8px 30px rgba(0,0,0,0.6);
+      display:none;
+      flex-direction:column;
+      z-index:3000;
+    }
+    #dropdownMenu h4{margin-bottom:12px}
+    #dropdownMenu .menu li{
+      list-style:none;
+      padding:10px 12px;
+      border-radius:10px;
+      color:var(--muted);
+      cursor:pointer;
+      margin-bottom:8px;
+      background:#141414;
+    }
+    #dropdownMenu .menu li:hover{
+      background:rgba(255,255,255,0.06);
+      color:#fff
+    }
 
-/* image 70% of card height look */
-.card-img{ width:100%; height:160px; object-fit:cover; display:block; }
-.card-body{ padding:10px; }
-.card-title{ font-weight:600; margin:2px 0 4px 0; }
-.card-sub{ font-size:13px; color:gray; margin-bottom:8px; }
+    .layout{padding-top:92px;padding-left:16px;padding-right:16px}
 
-/* actions row */
-.actions{ display:flex; gap:8px; align-items:center; }
-.small-btn{ flex:1; padding:8px 6px; border-radius:8px; border:none; cursor:pointer; font-size:13px; }
-.like{ background:#ff3b6c; color:white; }
-.comment{ background:#2ecc71; color:white; }
-.chat-open{ background:#4b79ff; color:white; }
+    /* Main area */
+    .main{width:100%}
+    .filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}
+    .filters input,.filters select{
+      padding:12px 14px;
+      border-radius:12px;
+      border:none;
+      background:#0b0b0b;
+      color:#fff;
+      min-width:160px
+    }
 
-/* counters inline */
-.counter{ font-weight:600; margin-left:6px; }
+    /* Slider */
+    .slider-wrap{
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
+      padding:18px;
+      border-radius:14px;
+      margin-bottom:18px
+    }
+    .slider-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .slider-controls{display:flex;gap:8px;align-items:center}
+    .icon-btn{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      padding:8px;
+      border-radius:10px;
+      cursor:pointer;
+      color:var(--muted)
+    }
 
-/* chat column */
-.chat-header{ display:flex; gap:12px; align-items:center; padding:12px; border-bottom:1px solid rgba(0,0,0,0.04); background:transparent; }
-.chat-body{ padding:12px; height:62vh; overflow:auto; background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); }
-.msg{ display:inline-block; padding:10px 12px; border-radius:10px; margin:8px 0; max-width:70%; background:var(--card); box-shadow:0 3px 8px rgba(0,0,0,0.04); }
-.msg.me{ background:var(--primary); color:white; margin-left:auto; }
+    .slider{overflow:hidden;border-radius:12px}
+    .track{display:flex;gap:18px;padding:12px;transition:transform .2s ease}
+    .card{
+      min-width:260px;
+      background:var(--card);
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 6px 18px rgba(0,0,0,0.6);
+      cursor:pointer
+    }
+    .card img{display:block;width:100%;height:340px;object-fit:cover}
+    .card .meta{padding:12px}
+    .card h3{font-size:18px;margin-bottom:6px}
+    .card p{font-size:13px;color:rgba(255,255,255,0.75)}
 
-.input-row{ display:flex; gap:8px; padding:12px; border-top:1px solid rgba(0,0,0,0.04); background:var(--card); border-radius:0 0 12px 12px; }
-.input { flex:1; padding:10px 12px; border-radius:999px; border:1px solid #dfe6f3; outline:none; }
+    /* Feed */
+    .feed{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:14px;margin-top:8px
+    }
+    .profile-card{
+      background:var(--card);
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 8px 30px rgba(0,0,0,0.6)
+    }
+    .profile-card img{width:100%;height:260px;object-fit:cover}
+    .profile-card .info{padding:10px}
+    .profile-card h4{margin-bottom:6px}
+    .profile-card p{color:rgba(255,255,255,0.78);font-size:13px}
 
-/* online dot */
-.dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px; vertical-align:middle; }
-.online { background:#34c759; box-shadow:0 0 6px rgba(52,199,89,0.25); }
-.offline { background:#d1d5db; }
-
-/* small helpers */
-.hint{ font-size:13px; color:gray; margin-top:8px; }
-.count-bubble{ background:rgba(0,0,0,0.06); padding:6px 8px; border-radius:999px; font-weight:600; font-size:13px; }
-.empty { text-align:center; color:gray; padding:22px; }
-</style>
+    footer{height:80px}
+  </style>
 </head>
+
 <body>
 
-<div class="app" id="appRoot" data-theme="light">
-  <div class="topbar">
-    <div class="left-controls">
-      <div style="font-weight:700; font-size:18px;">Social Chat</div>
-      <input id="searchInput" class="search" placeholder="Search users..." />
-    </div>
-
-    <div style="display:flex; gap:8px; align-items:center;">
-      <button id="themeToggle" class="icon-btn">🌙</button>
-      <div id="userInfo" class="hint">Not signed in</div>
-    </div>
+<header>
+  <div class="brand">
+    <div class="logo">JW CONNECT </div>
+    <div style="opacity:.7;font-size:13px">Meet Friends of peace</div>
   </div>
 
-  <div class="layout">
-    <!-- USER LIST COLUMN -->
-    <div class="col user-col">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <div style="font-weight:700">People</div>
-        <div class="hint">Online: <span id="onlineCount">0</span></div>
+  <div class="controls">
+    <button id="toggleAuto" class="icon-btn">Start Auto</button>
+
+    <!-- MENU BUTTON HERE -->
+    <button class="icon-btn" id="openMenu">☰ Menu</button>
+
+    <button class="icon-btn" onclick="openModal('login')">Log in</button>
+    <button class="primary" onclick="openModal('signup')">Sign up</button>
+  </div>
+</header>
+
+<!-- NEW TOP DROPDOWN MENU -->
+<div id="dropdownMenu">
+  <h4>Quick Menu</h4>
+  <ul class="menu">
+    <li onclick="alert('Contact Admin')">Contact Admin</li>
+    <li onclick="alert('Video post ')">Naughty Users</li>
+    <li onclick="alert('Group Chats')">Videos</li>
+    <li onclick="alert('Channels')">Channels</li>
+    <li onclick="alert('Books')">Rooms</li>
+    <li onclick="alert('Video Chats')">Video Chats</li>
+    
+  </ul>
+</div>
+
+<div class="layout">
+  <main class="main">
+
+    <!-- Filters -->
+    <div class="filters">
+      <input id="searchName" placeholder="Search by name..." />
+      <select id="cityFilter"><option value="">All Cities</option><option>Lagos</option><option>Abuja</option><option>Port Harcourt</option></select>
+      <select id="ageFilter"><option value="">Age</option><option>18-25</option><option>26-35</option><option>36-45</option></select>
+      <select id="stateFilter">
+        <option value="">State (Nigeria)</option>
+        <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option>
+        <option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option>
+        <option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option>
+        <option>Ekiti</option><option>Enugu</option><option>Gombe</option><option>Imo</option>
+        <option>Jigawa</option><option>Kaduna</option><option>Kano</option><option>Katsina</option>
+        <option>Kebbi</option><option>Kogi</option><option>Kwara</option><option>Lagos</option>
+        <option>Nasarawa</option><option>Niger</option><option>Ogun</option><option>Ondo</option>
+        <option>Osun</option><option>Oyo</option><option>Plateau</option><option>Rivers</option>
+        <option>Sokoto</option><option>Taraba</option><option>Yobe</option><option>Zamfara</option>
+      </select>
+      <button id="applyFilters" style="padding:12px 16px;border-radius:12px;border:none;background:var(--accent);color:#000;cursor:pointer">Apply</button>
+    </div>
+
+    <!-- Slider -->
+    <div class="slider-wrap">
+      <div class="slider-top">
+        <div style="font-weight:600">Featured Profiles</div>
+        <div class="slider-controls">
+          <button class="icon-btn" id="prev">◀</button>
+          <button class="icon-btn" id="next">▶</button>
+        </div>
       </div>
 
-      <div id="userList" class="user-list">
-        <!-- user cards injected here -->
+      <div class="slider" id="slider">
+        <div class="track" id="track"></div>
       </div>
     </div>
 
-    <!-- CHAT COLUMN -->
-    <div class="col chat-col" id="chatColumn">
-      <div id="chatPlaceholder" class="empty">
-        Select a person to open chat.<br/><small class="hint">Click a card or the Chat button.</small>
-      </div>
+    <!-- Feed -->
+    <div id="feed" class="feed"></div>
+    <footer></footer>
 
-      <div id="chatPanel" style="display:none; flex-direction:column; height:100%;">
-        <div class="chat-header">
-          <div style="display:flex; gap:10px; align-items:center;">
-            <img id="chatAvatar" src="" width="48" height="48" style="border-radius:10px; object-fit:cover;" />
-            <div>
-              <div id="chatName" style="font-weight:700"></div>
-              <div id="chatLocation" class="hint"></div>
-            </div>
-          </div>
+  </main>
+</div>
 
-          <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
-            <div id="chatLastSeen" class="hint"></div>
-            <button id="closeChat" class="icon-btn">Close</button>
-          </div>
-        </div>
-
-        <div id="chatBody" class="chat-body"></div>
-
-        <div class="input-row">
-          <input id="msgInput" class="input" placeholder="Type a message..." />
-          <button id="sendBtn" class="btn">Send</button>
-        </div>
-      </div>
+<!-- Modal -->
+<div style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:5000" id="modalBg">
+  <div style="width:90%;max-width:420px;background:#0f0f0f;padding:22px;border-radius:14px">
+    <h3 id="modalTitle">Login</h3>
+    <input id="modalEmail" placeholder="Email" style="width:100%;padding:12px;border-radius:10px;border:none;margin-top:12px;background:#080808;color:#fff" />
+    <input id="modalPass" placeholder="Password" type="password" style="width:100%;padding:12px;border-radius:10px;border:none;margin-top:12px;background:#080808;color:#fff" />
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button style="flex:1;padding:12px;border-radius:10px;border:none;background:var(--accent);color:#000" onclick="closeModal()">Continue</button>
+      <button style="flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted)" onclick="closeModal()">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- Firebase (compat) CDN for simpler inline usage -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
-/* ====================== REPLACE WITH YOUR FIREBASE CONFIG ======================
-  Get this from Firebase console (Project settings)
-  ***************************************************************************** */
-const firebaseConfig = {
-  apiKey: "REPLACE_ME",
-  authDomain: "REPLACE_ME",
-  projectId: "REPLACE_ME",
-  storageBucket: "REPLACE_ME",
-  messagingSenderId: "REPLACE_ME",
-  appId: "REPLACE_ME"
-};
-/* =========================================================================== */
+  /* ---- DEMO DATA ---- */
+  const demoProfiles = Array.from({length:30}).map((_,i)=>({
+    id:i+1,
+    name:["Amara","Victoria","Nina","Sasha","Chioma","Angela","Tonia","Bella","Mary"][i%9],
+    age:18 + (i%15),
+    city:["Lagos","Abuja","Port Harcourt","Kaduna"][i%4],
+    state:["Lagos","Abia","Rivers","Enugu","Kano","Kaduna"][i%6],
+    img:`https://picsum.photos/seed/${i+10}/600/900`
+  }));
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+  /* ---- TOP MENU DROPDOWN ---- */
+  const menu = document.getElementById("dropdownMenu");
+  document.getElementById("openMenu").onclick = () => {
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+  };
 
-/* ---------- simple anonymous auth so we have uid ---------- */
-let currentUser = null;
-async function anonSignIn(){
-  try{
-    const res = await auth.signInAnonymously();
-    currentUser = res.user;
-    // store temporary displayName if none (for demo we ask)
-    if(!localStorage.getItem('displayName')){
-      const name = prompt("Enter your display name for this demo (will be saved locally):", "You");
-      localStorage.setItem('displayName', name || 'You');
+  /* ---- SLIDER ---- */
+  const track = document.getElementById("track");
+  const featured = demoProfiles.slice(0,8);
+
+  function makeCard(p){
+    const el=document.createElement("div");
+    el.className="card";
+    el.innerHTML=`<img src="${p.img}"/><div class="meta"><h3>${p.name}, ${p.age}</h3><p>${p.city} • ${p.state}</p></div>`;
+    el.onclick=()=>alert(`${p.name}`);
+    return el;
+  }
+
+  featured.forEach(p=>track.appendChild(makeCard(p)));
+  featured.forEach(p=>track.appendChild(makeCard(p)));
+
+  let position = 0;
+  const step = 280;
+
+  document.getElementById("next").onclick=()=>{position -= step;track.style.transform=`translateX(${position}px)`};
+  document.getElementById("prev").onclick=()=>{position += step;track.style.transform=`translateX(${position}px)`};
+
+  /* Auto scroll */
+  let autoScroll=false,autoInterval;
+  const toggleBtn=document.getElementById("toggleAuto");
+  toggleBtn.onclick=()=>{
+    autoScroll=!autoScroll;
+    toggleBtn.innerText=autoScroll?"Stop Auto":"Start Auto";
+    if(autoScroll){
+      autoInterval=setInterval(()=>{
+        position -=2;
+        track.style.transform=`translateX(${position}px)`;
+      },20);
+    } else clearInterval(autoInterval);
+  };
+
+  /* ---- FEED ---- */
+  const feed=document.getElementById("feed");
+  let feedIndex=0;
+
+  function appendBatch(n=12){
+    for(let i=0;i<n;i++){
+      const p=demoProfiles[feedIndex % demoProfiles.length];
+      const card=document.createElement("div");
+      card.className="profile-card";
+      card.innerHTML=`<img src="${p.img}"/><div class="info"><h4>${p.name}, ${p.age}</h4><p>${p.city} • ${p.state}</p></div>`;
+      feed.appendChild(card);
+      feedIndex++;
     }
-    // create or update profile in users collection
-    const profile = {
-      name: localStorage.getItem('displayName'),
-      location: localStorage.getItem('location') || 'Unknown',
-      avatar: localStorage.getItem('avatar') || `https://i.pravatar.cc/150?u=${currentUser.uid}`,
-      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    await db.collection('users').doc(currentUser.uid).set(profile, {merge:true});
-    // show in UI
-    document.getElementById('userInfo').innerText = profile.name + " (you)";
-    startPresenceHeartbeat();
-  } catch(e){
-    console.error("Auth error:", e);
-    alert("Firebase auth failed. Check console and Firebase project settings.");
-  }
-}
-anonSignIn();
-
-/* ---------- Presence (heartbeat) - updates lastSeen every 15s ---------- */
-let heartbeatInterval = null;
-function startPresenceHeartbeat(){
-  if(!currentUser) return;
-  async function beat(){
-    try{
-      await db.collection('users').doc(currentUser.uid).set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
-    }catch(e){ console.warn("Heartbeat failed", e); }
-  }
-  beat();
-  heartbeatInterval = setInterval(beat, 15000);
-}
-
-/* ---------- Sample seed data (only if users collection empty) ----------
-   In production you'd have registration flow that writes user docs.
-   This snippet checks if there are users other than current and seeds demo users.
---------------------------------------------------------------------------*/
-async function seedDemoUsersIfNeeded(){
-  const snap = await db.collection('users').limit(1).get();
-  if(!snap.empty) return; // already have users
-  const demo = [
-    { id: 'u_sarah', name:'Sarah Chisom', location:'Lagos, NG', avatar:'https://i.pravatar.cc/300?img=5', likes:0, comments:0, lastSeen: firebase.firestore.Timestamp.now() },
-    { id: 'u_daniel', name:'Daniel Peter', location:'Abuja, NG', avatar:'https://i.pravatar.cc/300?img=11', likes:0, comments:0, lastSeen: firebase.firestore.Timestamp.now() },
-    { id: 'u_amaka', name:'Amaka Joy', location:'Enugu, NG', avatar:'https://i.pravatar.cc/300?img=20', likes:0, comments:0, lastSeen: firebase.firestore.Timestamp.now() },
-    { id: 'u_john', name:'John Kelvin', location:'Port Harcourt, NG', avatar:'https://i.pravatar.cc/300?img=8', likes:0, comments:0, lastSeen: firebase.firestore.Timestamp.now() }
-  ];
-  const batch = db.batch();
-  demo.forEach(d => {
-    const ref = db.collection('users').doc(d.id);
-    batch.set(ref, d);
-  });
-  await batch.commit();
-}
-seedDemoUsersIfNeeded();
-
-/* ---------- UI Helpers & State ---------- */
-const userListEl = document.getElementById('userList');
-const searchInput = document.getElementById('searchInput');
-const onlineCountEl = document.getElementById('onlineCount');
-
-let usersCache = []; // array of user docs
-let selectedChatUser = null;
-let messagesUnsub = null;
-
-/* ---------- Listen to users collection real-time ---------- */
-function attachUsersListener(){
-  db.collection('users').orderBy('name').onSnapshot(snapshot => {
-    usersCache = [];
-    snapshot.forEach(doc => {
-      const data = doc.data(); data.id = doc.id;
-      usersCache.push(data);
-    });
-    renderUserList();
-  }, err => console.error("Users listener error", err));
-}
-attachUsersListener();
-
-/* ---------- Render user cards with search & online detection ---------- */
-function renderUserList(){
-  const q = searchInput.value.trim().toLowerCase();
-  userListEl.innerHTML = '';
-  const now = Date.now();
-  let onlineCount = 0;
-
-  const filtered = usersCache.filter(u => {
-    if(!u) return false;
-    const name = (u.name||'').toLowerCase();
-    const loc = (u.location||'').toLowerCase();
-    return name.includes(q) || loc.includes(q);
-  });
-
-  if(filtered.length === 0){
-    userListEl.innerHTML = `<div class="empty">No users found.</div>`;
   }
 
-  filtered.forEach(u => {
-    // determine online (lastSeen within 30s)
-    let online = false;
-    if(u.lastSeen && u.lastSeen.toMillis){
-      const last = u.lastSeen.toMillis();
-      online = (now - last) < 30000;
+  appendBatch(18);
+  window.addEventListener("scroll",()=>{
+    if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 800){
+      appendBatch(12);
     }
-    if(online) onlineCount++;
-
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <img class="card-img" src="${u.avatar || 'https://i.pravatar.cc/300'}" />
-      <div class="card-body">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="card-title">${u.name || 'Unknown'}</div>
-            <div class="card-sub">${u.location || ''}</div>
-          </div>
-          <div style="text-align:right;">
-            <div title="${online ? 'Online' : 'Last seen: '+(u.lastSeen? new Date(u.lastSeen.toMillis()).toLocaleString():'unknown') }">
-              <span class="dot ${online? 'online':'offline'}"></span>
-            </div>
-            <div style="margin-top:8px;"><span class="count-bubble">${u.likes || 0} ❤</span></div>
-          </div>
-        </div>
-
-        <div class="actions" style="margin-top:10px;">
-          <button class="small-btn chat-open" data-id="${u.id}">Chat</button>
-          <button class="small-btn like" data-id="${u.id}">❤ <span class="counter">${u.likes||0}</span></button>
-          <button class="small-btn comment" data-id="${u.id}">💬 <span class="counter">${u.comments||0}</span></button>
-        </div>
-      </div>
-    `;
-    // card click (open chat)
-    card.querySelector('.chat-open').addEventListener('click', (ev)=> {
-      ev.stopPropagation();
-      openChatWithUser(u);
-    });
-    card.querySelector('.like').addEventListener('click', ev => {
-      ev.stopPropagation(); likeUser(u.id);
-    });
-    card.querySelector('.comment').addEventListener('click', ev => {
-      ev.stopPropagation(); commentUser(u.id);
-    });
-
-    userListEl.appendChild(card);
   });
 
-  onlineCountEl.innerText = onlineCount;
-}
+  /* ---- FILTERS ---- */
+  document.getElementById("applyFilters").onclick=()=>{
+    const name=document.getElementById("searchName").value.toLowerCase();
+    const city=document.getElementById("cityFilter").value.trim();
+    const age=document.getElementById("ageFilter").value;
+    const state=document.getElementById("stateFilter").value;
 
-/* ---------- Search ---------- */
-searchInput.addEventListener('input', () => renderUserList());
+    feed.innerHTML='';
+    feedIndex=0;
 
-/* ---------- Like & Comment updates (safe merge) ---------- */
-async function likeUser(userId){
-  const ref = db.collection('users').doc(userId);
-  // use a transaction to increment safely
-  try{
-    await db.runTransaction(async tx => {
-      const snap = await tx.get(ref);
-      const curr = snap.exists ? snap.data().likes || 0 : 0;
-      tx.set(ref, { likes: curr + 1 }, {merge:true});
+    const filtered=demoProfiles.filter(p=>{
+      if(name && !p.name.toLowerCase().includes(name)) return false;
+      if(city && p.city.trim()!==city.trim()) return false;
+      if(state && p.state !==state) return false;
+      if(age){
+        if(age==='18-25' && !(p.age>=18&&p.age<=25)) return false;
+        if(age==='26-35' && !(p.age>=26&&p.age<=35)) return false;
+        if(age==='36-45' && !(p.age>=36&&p.age<=45)) return false;
+      }
+      return true;
     });
-  }catch(e){ console.error("Like failed", e); }
-}
 
-async function commentUser(userId){
-  const text = prompt("Write a comment:");
-  if(!text) return;
-  try{
-    // increment comments and save a comment doc under users/{userId}/comments (optional)
-    await db.runTransaction(async tx => {
-      const ref = db.collection('users').doc(userId);
-      const snap = await tx.get(ref);
-      const curr = snap.exists ? snap.data().comments || 0 : 0;
-      tx.set(ref, { comments: curr + 1 }, {merge:true});
-    });
-    await db.collection('users').doc(userId).collection('comments').add({
-      text, fromUid: currentUser ? currentUser.uid : null, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }catch(e){ console.error("Comment failed", e); }
-}
+    for(let i=0;i<50;i++){
+      const p=filtered[i % filtered.length || 0];
+      if(!p) break;
+      const card=document.createElement("div");
+      card.className="profile-card";
+      card.innerHTML=`<img src="${p.img}"/><div class="info"><h4>${p.name}, ${p.age}</h4><p>${p.city} • ${p.state}</p></div>`;
+      feed.appendChild(card);
+    }
+  };
 
-/* ---------- Chat logic ---------- */
-const chatPanel = document.getElementById('chatPanel');
-const chatBody = document.getElementById('chatBody');
-const chatNameEl = document.getElementById('chatName');
-const chatLocationEl = document.getElementById('chatLocation');
-const chatAvatar = document.getElementById('chatAvatar');
-const chatLastSeen = document.getElementById('chatLastSeen');
-const chatPlaceholder = document.getElementById('chatPlaceholder');
-const closeChatBtn = document.getElementById('closeChat');
-const sendBtn = document.getElementById('sendBtn');
-const msgInput = document.getElementById('msgInput');
-
-closeChatBtn.addEventListener('click', closeChat);
-
-function chatIdFor(u1, u2){
-  // deterministic chatId for a 1:1 chat
-  const a = u1 < u2 ? u1 : u2;
-  const b = u1 < u2 ? u2 : u1;
-  return `chat_${a}_${b}`;
-}
-
-async function openChatWithUser(userDoc){
-  selectedChatUser = userDoc;
-  chatPlaceholder.style.display = 'none';
-  chatPanel.style.display = 'flex';
-  chatNameEl.innerText = userDoc.name;
-  chatLocationEl.innerText = userDoc.location || '';
-  chatAvatar.src = userDoc.avatar || '';
-  updateChatLastSeen(userDoc);
-
-  // subscribe to messages between currentUser.uid and userDoc.id
-  if(messagesUnsub) messagesUnsub();
-
-  const partnerUid = userDoc.id;
-  const localUid = currentUser ? currentUser.uid : 'anon';
-  const id = chatIdFor(localUid, partnerUid);
-  const messagesRef = db.collection('chats').doc(id).collection('messages').orderBy('createdAt');
-
-  messagesUnsub = messagesRef.onSnapshot(snapshot => {
-    chatBody.innerHTML = '';
-    snapshot.forEach(doc => {
-      const m = doc.data();
-      const div = document.createElement('div');
-      div.className = 'msg' + (m.from === (currentUser?currentUser.uid:'anon') ? ' me' : '');
-      const time = m.createdAt && m.createdAt.toDate ? formatTime(m.createdAt.toDate()) : '';
-      div.innerHTML = `<div style="font-size:14px;">${escapeHtml(m.text)}</div><div style="font-size:11px; opacity:0.7; margin-top:6px;">${m.fromName?escapeHtml(m.fromName):''} • ${time}</div>`;
-      chatBody.appendChild(div);
-    });
-    // scroll bottom
-    chatBody.scrollTop = chatBody.scrollHeight;
-  }, err => console.error("Messages listener error", err));
-}
-
-/* send message */
-sendBtn.addEventListener('click', sendMessage);
-msgInput.addEventListener('keydown', e => { if(e.key === 'Enter') sendMessage(); });
-
-async function sendMessage(){
-  const text = msgInput.value.trim();
-  if(!text || !selectedChatUser) return;
-  const fromUid = currentUser ? currentUser.uid : 'anon';
-  const fromName = localStorage.getItem('displayName') || 'You';
-  const partnerUid = selectedChatUser.id;
-  const id = chatIdFor(fromUid, partnerUid);
-  const messagesRef = db.collection('chats').doc(id).collection('messages');
-  try{
-    await messagesRef.add({
-      text, from: fromUid, fromName, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    msgInput.value = '';
-    // write last message summary to chat doc for listing (optional)
-    await db.collection('chats').doc(id).set({
-      lastMessage: text,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      members: [fromUid, partnerUid]
-    }, {merge:true});
-  }catch(e){ console.error("Send failed", e); }
-}
-
-/* update chat partner last-seen text */
-function updateChatLastSeen(userDoc){
-  if(userDoc.lastSeen && userDoc.lastSeen.toMillis){
-    const diff = Date.now() - userDoc.lastSeen.toMillis();
-    if(diff < 60000) chatLastSeen.innerText = 'Online';
-    else chatLastSeen.innerText = 'Last seen ' + timeAgo(userDoc.lastSeen.toDate());
-  } else {
-    chatLastSeen.innerText = 'Last seen unknown';
+  /* ---- MODAL ---- */
+  function openModal(type){
+    document.getElementById("modalBg").style.display="flex";
+    document.getElementById("modalTitle").innerText= type==='login'?'Login':'Sign Up';
   }
-}
-
-/* close chat */
-function closeChat(){
-  selectedChatUser = null;
-  if(messagesUnsub) messagesUnsub();
-  chatPanel.style.display = 'none';
-  chatPlaceholder.style.display = 'block';
-}
-
-/* ---------- Utility formatting ---------- */
-function formatTime(d){
-  return d.toLocaleString([], { hour: '2-digit', minute: '2-digit', month:'short', day:'numeric' });
-}
-function timeAgo(d){
-  const s = Math.floor((Date.now() - d.getTime())/1000);
-  if(s < 60) return `${s}s ago`;
-  if(s < 3600) return `${Math.floor(s/60)}m ago`;
-  if(s < 86400) return `${Math.floor(s/3600)}h ago`;
-  return `${Math.floor(s/86400)}d ago`;
-}
-function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
-
-/* ---------- Theme toggle ---------- */
-const themeToggle = document.getElementById('themeToggle');
-const appRoot = document.getElementById('appRoot');
-themeToggle.addEventListener('click', () => {
-  const cur = appRoot.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  appRoot.setAttribute('data-theme', cur);
-  themeToggle.innerText = cur === 'dark' ? '☀️' : '🌙';
-});
-
-/* ---------- small helper: show local cached user on UI (when auth ready) ---------- */
-auth.onAuthStateChanged(u => {
-  if(u){
-    currentUser = u;
-    document.getElementById('userInfo').innerText = (localStorage.getItem('displayName') || 'You') + " (you)";
-    // ensure doc exists
-    db.collection('users').doc(currentUser.uid).set({
-      name: localStorage.getItem('displayName') || 'You',
-      avatar: localStorage.getItem('avatar') || `https://i.pravatar.cc/150?u=${currentUser.uid}`,
-      location: localStorage.getItem('location') || 'Unknown',
-      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-    }, {merge:true});
-  } else {
-    // no user; try anonymous sign in again
-    anonSignIn();
-  }
-});
-
-/* ---------- tidy: update UI presence from cache every 10s (to re-evaluate online flags) ---------- */
-setInterval(() => {
-  renderUserList();
-}, 10000);
+  function closeModal(){ document.getElementById("modalBg").style.display="none"; }
+  window.openModal=openModal;
+  window.closeModal=closeModal;
 
 </script>
 </body>
