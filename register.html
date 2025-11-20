@@ -307,7 +307,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
   const formData = new FormData(this);
   const payload = Object.fromEntries(formData.entries());
 
-  payload.profileImage = finalImageURL; // FIXED
+  payload.profileImage = finalImageURL;
 
   try {
     const res = await fetch("https://jwconnect.fly.dev/api/register", {
@@ -323,6 +323,12 @@ document.getElementById("registerForm").addEventListener("submit", async functio
     statusBox.style.display = "block";
 
     btn.innerHTML = "Success!";
+
+    /* ✅ REDIRECT AFTER SUCCESS */
+    setTimeout(() => {
+      window.location.href = "login.html";   // or "/login"
+    }, 1500);
+
   }
   catch (err) {
     statusBox.className = "error";
