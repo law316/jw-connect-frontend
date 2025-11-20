@@ -14,7 +14,6 @@
     color: #fff;
   }
 
-  /* Container */
   .container {
     width: 100%;
     height: 100vh;
@@ -22,7 +21,6 @@
     flex-direction: column;
   }
 
-  /* Sliding Image Section */
   .top-slider {
     position: relative;
     width: 100%;
@@ -49,7 +47,6 @@
     100% {opacity: 1; background-image: url('https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1200');}
   }
 
-  /* Login Area */
   .login-section {
     flex: 1;
     padding: 30px;
@@ -134,7 +131,7 @@
 </div>
 
 <script>
-function login() {
+async function login() {
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value.trim();
 
@@ -143,7 +140,31 @@ function login() {
     return;
   }
 
-  alert("Login clicked! (Hook up backend here)");
+  try {
+    const res = await fetch("https://jwconnect.fly.dev/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      alert("Invalid email or password");
+      return;
+    }
+
+    const data = await res.json();
+
+    // OPTIONAL: save token if backend returns one
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
+
+    // Redirect user after successful login
+    window.location.href = "profile.html";
+
+  } catch (error) {
+    alert("Error connecting to server");
+  }
 }
 </script>
 
