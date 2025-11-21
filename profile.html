@@ -12,7 +12,12 @@
 <style>
 html,body,h1,h2,h3,h4,h5 {font-family:"Open Sans",sans-serif}
 
-/* ===== THEME OVERRIDE ===== */
+/* Background */
+body {
+    background: #e6e6e6;
+}
+
+/* Theme Colors */
 .w3-theme-d2, .w3-theme-d4, .w3-theme {
     background: #003366 !important;
 }
@@ -21,6 +26,7 @@ html,body,h1,h2,h3,h4,h5 {font-family:"Open Sans",sans-serif}
     background: #0055aa !important;
 }
 
+/* Buttons */
 button, .w3-button {
     transition: 0.3s;
 }
@@ -31,16 +37,27 @@ button:hover, .w3-button:hover {
     color: white !important;
 }
 
-/* === Cards Modernized === */
+/* Card Styling */
 .w3-card, .w3-card-4 {
     border-radius: 18px !important;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.15) !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18) !important;
+    background: #ffffff;
 }
 
 /* Profile Image Glow */
 .profile-img {
     border: 4px solid white;
     box-shadow: 0px 0px 18px #ff8800;
+}
+
+/* Find Person Button */
+.find-btn {
+    background: #003366 !important;
+    border-radius: 12px;
+}
+
+.find-btn:hover {
+    background: #ff8800 !important;
 }
 </style>
 </head>
@@ -57,7 +74,7 @@ button:hover, .w3-button:hover {
   <a href="#" class="w3-bar-item w3-button w3-hide-small w3-padding-large"><i class="fa fa-envelope"></i></a>
 
   <a href="#" class="w3-bar-item w3-button w3-hide-small w3-right w3-padding-large">
-    <img src="https://i.imgur.com/WxNkK1p.png" class="w3-circle profile-img" style="height:30px;width:30px;">
+    <img id="navProfileImg" src="default.png" class="w3-circle profile-img" style="height:30px;width:30px;">
   </a>
  </div>
 </div>
@@ -71,20 +88,18 @@ button:hover, .w3-button:hover {
   <div class="w3-card w3-white w3-round">
     <div class="w3-container w3-center">
       <h4>My Profile</h4>
-      <img src="https://i.imgur.com/WxNkK1p.png" class="w3-circle profile-img" style="height:106px;width:106px;">
+      <img id="profileImage" src="default.png" class="w3-circle profile-img" style="height:106px;width:106px;">
       <hr>
-      <p><i class="fa fa-user w3-margin-right"></i>Joshua Ottah</p>
-      <p><i class="fa fa-home w3-margin-right"></i>USA</p>
-      <p><i class="fa fa-envelope w3-margin-right"></i>sector31619@gmail.com</p>
+      <p><i class="fa fa-user w3-margin-right"></i><span id="profileName">Loading...</span></p>
+      <p><i class="fa fa-home w3-margin-right"></i><span id="profileLocation">Loading...</span></p>
+      <p><i class="fa fa-envelope w3-margin-right"></i><span id="profileEmail">Loading...</span></p>
     </div>
   </div>
   <br>
 
   <div class="w3-card w3-white w3-round w3-padding">
     <p><strong>Interests</strong></p>
-    <span class="w3-tag w3-theme">God</span>
-    <span class="w3-tag w3-theme">Faith</span>
-    <span class="w3-tag w3-theme">Christian Videos</span>
+    <div id="interestsContainer"></div>
   </div>
   <br>
 </div>
@@ -145,7 +160,7 @@ button:hover, .w3-button:hover {
 
   <div class="w3-card w3-white w3-round w3-center w3-padding">
     <p>Connect</p>
-    <button class="w3-button w3-block w3-theme">Find Someone</button>
+    <a href="chat_list.html" class="w3-button w3-block find-btn">Find Someone</a>
     <button class="w3-button w3-block w3-theme-l1">Conversation</button>
   </div>
 </div>
@@ -158,6 +173,34 @@ button:hover, .w3-button:hover {
 <footer class="w3-container w3-theme-d3 w3-center w3-padding">
   <h5>Powered by Faith & W3.CSS</h5>
 </footer>
+
+<script>
+const username = localStorage.getItem("username");
+
+async function loadProfile() {
+    const res = await fetch(`https://jwconnect.fly.dev/api/profile/${username}`);
+    const data = await res.json();
+
+    document.getElementById("profileImage").src = data.image || "default.png";
+    document.getElementById("navProfileImg").src = data.image || "default.png";
+
+    document.getElementById("profileName").innerText = data.userName;
+    document.getElementById("profileLocation").innerText = data.location;
+    document.getElementById("profileEmail").innerText = data.email;
+
+    // Fill interests
+    const container = document.getElementById("interestsContainer");
+    container.innerHTML = "";
+    if (data.interest) {
+        data.interinterest = data.interest.split(",");
+        data.interinterest.forEach(tag => {
+            container.innerHTML += `<span class="w3-tag w3-theme w3-margin-right">${tag.trim()}</span>`;
+        });
+    }
+}
+
+loadProfile();
+</script>
 
 </body>
 </html>
